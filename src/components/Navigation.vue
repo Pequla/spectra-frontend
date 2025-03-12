@@ -26,7 +26,7 @@
           </li>
         </ul>
         <span class="navbar-text" v-if="AuthService.hasAuth()">
-          <i class="fa-solid fa-user">{{ AuthService.getName() }}</i>
+          <i class="fa-solid fa-user"></i> {{ AuthService.getName() }}
         </span>
       </div>
     </div>
