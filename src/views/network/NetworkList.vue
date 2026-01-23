@@ -61,14 +61,17 @@ onMounted(() => loadNetworks())
                 </td>
                 <td>
                     <div class="btn-group">
-                        <RouterLink :to="`/network/${network.networkId}/address`" class="btn btn-sm btn-light">
-                            <i class="fa-solid fa-network-wired"></i> Adresses
+                        <RouterLink :to="`/network/${network.networkId}/address`" class="btn btn-sm btn-primary">
+                            <i class="fa-solid fa-desktop"></i>
+                        </RouterLink>
+                        <RouterLink :to="`/network/${network.networkId}/nodes`" class="btn btn-sm btn-secondary">
+                            <i class="fa-solid fa-hexagon-nodes"></i>
                         </RouterLink>
                         <RouterLink :to="`/network/${network.networkId}`" class="btn btn-sm btn-success">
-                            <i class="fa-solid fa-pen-to-square"></i> Edit
+                            <i class="fa-solid fa-pen-to-square"></i>
                         </RouterLink>
                         <button class="btn btn-sm btn-danger" v-on:click="deleteNetwork(network.networkId)">
-                            <i class="fa-solid fa-trash-can"></i> Delete
+                            <i class="fa-solid fa-trash-can"></i>
                         </button>
                     </div>
                 </td>

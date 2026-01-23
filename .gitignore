@@ -29,3 +29,5 @@ coverage
 
 *.tsbuildinfo
 .env.local
+.env
+bun.lock

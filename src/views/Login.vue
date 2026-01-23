@@ -2,6 +2,8 @@
 import Navigation from '@/components/Navigation.vue';
 import { AuthService } from '@/services/auth.service';
 import { MainService } from '@/services/main.service';
+import { showLoading } from '@/utils';
+import Swal from 'sweetalert2';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -12,7 +14,7 @@ const router = useRouter()
 
 function doLogin() {
     if (username.value == undefined || username.value == '') {
-        alert('Korisnicko ime ne sme biti prazno')
+        Swal.fire('Korisnicko ime ne sme biti prazno')
         return
     }
 
@@ -21,12 +23,14 @@ function doLogin() {
         return
     }
 
+    showLoading()
     MainService.login(username.value, password.value)
         .then(rsp => {
             AuthService.saveAuth(rsp.data)
             router.push({
                 path: '/'
             })
+            Swal.close()
         })
         .catch(e => alert(e.response.data.message))
 }
