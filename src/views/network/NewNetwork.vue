@@ -1,8 +1,11 @@
 <script lang="ts" setup>
 import Navigation from '@/components/Navigation.vue';
 import { useLogout } from '@/hooks/logout.hook';
-import { MainService } from '@/services/main.service';
-import { ref } from 'vue';
+import { LocationService } from '@/services/location.service';
+import { NetworkService } from '@/services/network.service';
+import { showConfirm, showLoading } from '@/utils';
+import Swal from 'sweetalert2';
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const network = ref({
@@ -12,20 +15,28 @@ const network = ref({
 })
 const logout = useLogout()
 const router = useRouter()
-
 const locations = ref()
-MainService.useAxios('/location')
-    .then(rsp => {
-        locations.value = rsp.data
-        network.value.locationId = rsp.data[0].locationId
-    })
-    .catch(e => logout())
 
 async function createNetwork() {
-    MainService.useAxios('/network', 'post', network.value)
-        .then(rsp => router.push('/network'))
-        .catch(e => logout())
+    showConfirm('Are you sure you want to create a network?', () => {
+        showLoading()
+        NetworkService.createNetwork(network.value)
+            .then(rsp => router.push('/network'))
+            .catch(e => logout())
+            .finally(() => Swal.close())
+    })
 }
+
+onMounted(() => {
+    showLoading()
+    LocationService.getLocations()
+        .then(rsp => {
+            locations.value = rsp.data
+            network.value.locationId = rsp.data[0].locationId
+        })
+        .catch(e => logout())
+        .finally(() => Swal.close())
+})
 </script>
 
 <template>
@@ -42,7 +53,7 @@ async function createNetwork() {
             </li>
         </ol>
     </nav>
-    <h1 class="h3 mt-3">New network:</h1>
+    <h1 class="h3">New Network</h1>
     <form v-on:submit.prevent="createNetwork">
         <div class="mb-3">
             <label for="index" class="form-label">Name:</label>

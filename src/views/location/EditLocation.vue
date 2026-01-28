@@ -1,24 +1,31 @@
 <script lang="ts" setup>
 import Navigation from '@/components/Navigation.vue';
 import { useLogout } from '@/hooks/logout.hook';
-import { MainService } from '@/services/main.service';
-import { ref } from 'vue';
+import type { LocationModel } from '@/models/location.model';
+import { LocationService } from '@/services/location.service';
+import { showLoading } from '@/utils';
+import Swal from 'sweetalert2';
+import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-const location = ref()
+const location = ref<LocationModel>()
 const logout = useLogout()
 const route = useRoute()
 const router = useRouter()
 
-MainService.useAxios(`/location/${route.params.id}`)
-    .then(rsp => location.value = rsp.data)
-    .catch(e => logout())
-
 async function updateLocation() {
-    MainService.useAxios(`/location/${route.params.id}`, 'put', location.value)
+    LocationService.updateLocation(Number(route.params.id), location.value)
         .then(rsp => router.push('/location'))
         .catch(e => logout())
 }
+
+onMounted(() => {
+    showLoading()
+    LocationService.getLocationById(Number(route.params.id))
+        .then(rsp => location.value = rsp.data)
+        .catch(e => logout())
+        .finally(() => Swal.close())
+})
 </script>
 
 <template>

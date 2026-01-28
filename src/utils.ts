@@ -8,13 +8,41 @@ export const customSwalStyling = {
     cancelButton: "btn btn-secondary",
 }
 
-export function showLoading() {
+export function showLoading(msg = "We are processing your request!") {
     Swal.fire({
         title: "Please wait",
-        text: "We are processing your request!",
+        text: msg,
         customClass: customSwalStyling,
         didOpen: () => {
             Swal.showLoading()
         }
     })
+}
+
+export function showConfirm(message: string, callback: Function) {
+    Swal.fire({
+        title: message,
+        showCancelButton: true,
+        confirmButtonText: 'Yes',
+        cancelButtonText: 'No',
+        icon: "question",
+        customClass: customSwalStyling
+    }).then(result => {
+        if (result.isConfirmed) {
+            callback()
+            Swal.fire({
+                title: "Success",
+                confirmButtonText: 'OK',
+                icon: "success",
+                customClass: customSwalStyling
+            })
+        }
+    })
+}
+
+export function generateLastReport(iso: string | null) {
+    if (iso == null)
+        return 'Never reported'
+
+    return new Date(iso).toLocaleString('sr-RS')
 }

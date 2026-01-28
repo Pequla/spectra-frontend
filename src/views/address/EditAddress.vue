@@ -1,24 +1,32 @@
 <script lang="ts" setup>
 import Navigation from '@/components/Navigation.vue';
 import { useLogout } from '@/hooks/logout.hook';
-import { MainService } from '@/services/main.service';
-import { ref } from 'vue';
+import type { AddressModel } from '@/models/address.model';
+import { AddressService } from '@/services/address.service';
+import { showLoading } from '@/utils';
+import Swal from 'sweetalert2';
+import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-const address = ref()
+const address = ref<AddressModel>()
 const logout = useLogout()
 const route = useRoute()
 const router = useRouter()
-
-MainService.useAxios(`/address/${route.params.id}`)
-    .then(rsp => address.value = rsp.data)
-    .catch(e => logout())
+const id = Number(route.params.id)
 
 async function updateAddress() {
-    MainService.useAxios(`/address/${route.params.id}`, 'put', address.value)
-        .then(rsp => router.push(`/network/${address.value.networkId}/address`))
+    AddressService.updateAddress(id, address.value)
+        .then(rsp => router.push(`/network/${address.value?.networkId}/address`))
         .catch(e => logout())
 }
+
+onMounted(() => {
+    showLoading()
+    AddressService.getAddressById(id)
+        .then(rsp => address.value = rsp.data)
+        .catch(e => logout())
+        .finally(() => Swal.close())
+})
 </script>
 
 <template>

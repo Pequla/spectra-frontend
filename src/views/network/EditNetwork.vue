@@ -1,28 +1,44 @@
 <script lang="ts" setup>
 import Navigation from '@/components/Navigation.vue';
 import { useLogout } from '@/hooks/logout.hook';
-import { MainService } from '@/services/main.service';
-import { ref } from 'vue';
+import type { LocationModel } from '@/models/location.model';
+import type { NetworkModel } from '@/models/network.model';
+import { LocationService } from '@/services/location.service';
+import { NetworkService } from '@/services/network.service';
+import { showConfirm, showLoading } from '@/utils';
+import Swal from 'sweetalert2';
+import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-const network = ref()
+const network = ref<NetworkModel>()
+const locations = ref<LocationModel[]>()
 const logout = useLogout()
 const route = useRoute()
 const router = useRouter()
-MainService.useAxios(`/network/${route.params.id}`)
-    .then(rsp => network.value = rsp.data)
-    .catch(e => logout())
-
-const locations = ref()
-MainService.useAxios('/location')
-    .then(rsp => locations.value = rsp.data)
-    .catch(e => logout())
+const id = Number(route.params.id)
 
 async function updateNetwork() {
-    MainService.useAxios(`/network/${route.params.id}`, 'put', network.value)
-        .then(rsp => router.push('/network'))
-        .catch(e => logout())
+    showConfirm('Are you sure you want to update the network?', () => {
+        NetworkService.updateNetwork(id, network.value)
+            .then(rsp => router.push('/network'))
+            .catch(e => logout())
+    })
 }
+
+onMounted(async () => {
+    try {
+        showLoading()
+        const net = await NetworkService.getNetworkById(id)
+        const loc = await LocationService.getLocations()
+        network.value = net.data
+        locations.value = loc.data
+    }
+    catch {
+        logout()
+    } finally {
+        Swal.close()
+    }
+})
 </script>
 
 <template>
@@ -39,7 +55,7 @@ async function updateNetwork() {
             </li>
         </ol>
     </nav>
-    <h1 class="h3 mt-3">Edit network:</h1>
+    <h1 class="h3 mt-3">Edit Network</h1>
     <form v-on:submit.prevent="updateNetwork" v-if="network">
         <div class="mb-3">
             <label for="id" class="form-label">ID:</label>

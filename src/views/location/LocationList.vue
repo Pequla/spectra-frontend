@@ -1,16 +1,18 @@
 <script lang="ts" setup>
+import DataTable from '@/components/DataTable.vue';
 import Navigation from '@/components/Navigation.vue';
 import Search from '@/components/Search.vue';
 import { useLogout } from '@/hooks/logout.hook';
-import { MainService } from '@/services/main.service';
+import type { LocationModel } from '@/models/location.model';
+import { LocationService } from '@/services/location.service';
 import { onMounted, ref } from 'vue';
 
 const logout = useLogout()
-const locations = ref<any[]>()
+const locations = ref<LocationModel[]>()
 const search = ref<string>('')
 
 function loadLocations() {
-    MainService.useAxios(`/location?search=${search.value}`)
+    LocationService.getLocations(search.value)
         .then(rsp => locations.value = rsp.data)
         .catch(e => logout())
 }
@@ -20,7 +22,7 @@ function deleteLocation(id: number) {
         return
     }
 
-    MainService.useAxios(`/location/${id}`, 'delete')
+    LocationService.deleteLocation(id)
         .then(rsp => {
             locations.value = locations.value!.filter(n => n.locationId !== id)
         })
@@ -40,7 +42,7 @@ onMounted(() => loadLocations())
             </RouterLink>
         </div>
     </Search>
-    <table class="table table-striped table-hover" v-if="locations">
+    <DataTable :data="locations">
         <thead>
             <tr>
                 <th scope="col">#</th>
@@ -60,14 +62,14 @@ onMounted(() => loadLocations())
                 <td>
                     <div class="btn-group">
                         <RouterLink :to="`/location/${location.locationId}`" class="btn btn-sm btn-success">
-                            <i class="fa-solid fa-pen-to-square"></i> Edit
+                            <i class="fa-solid fa-pen-to-square"></i>
                         </RouterLink>
                         <button class="btn btn-sm btn-danger" v-on:click="deleteLocation(location.locationId)">
-                            <i class="fa-solid fa-trash-can"></i> Delete
+                            <i class="fa-solid fa-trash-can"></i>
                         </button>
                     </div>
                 </td>
             </tr>
         </tbody>
-    </table>
+    </DataTable>
 </template>

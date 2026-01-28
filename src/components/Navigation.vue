@@ -11,18 +11,31 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0" v-if="AuthService.hasAuth()">
           <li class="nav-item">
-            <RouterLink class="nav-link" to="/network">Networks</RouterLink>
+            <RouterLink class="nav-link" to="/network" active-class="active">
+              <i class="fa-solid fa-network-wired"></i> Networks
+            </RouterLink>
           </li>
           <li class="nav-item">
-            <RouterLink class="nav-link" to="/location">Locations</RouterLink>
+            <RouterLink class="nav-link" to="/location" active-class="active">
+              <i class="fa-solid fa-location-dot"></i> Locations
+            </RouterLink>
           </li>
           <li class="nav-item">
-            <button class="nav-link" type="button" @click="logout">Logout</button>
+            <RouterLink class="nav-link" to="/node" active-class="active">
+              <i class="fa-solid fa-hexagon-nodes"></i> Nodes
+            </RouterLink>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" type="button" @click="logout">
+              <i class="fa-solid fa-door-open"></i> Logout
+            </button>
           </li>
         </ul>
         <ul class="navbar-nav me-auto mb-2 mb-lg-0" v-else>
           <li class="nav-item">
-            <RouterLink class="nav-link" to="/login">Login</RouterLink>
+            <RouterLink class="nav-link" to="/login">
+              <i class="fa-solid fa-arrow-right-to-bracket"></i> Login
+            </RouterLink>
           </li>
         </ul>
         <span class="navbar-text" v-if="AuthService.hasAuth()">

@@ -1,30 +1,31 @@
 <script lang="ts" setup>
+import DataTable from '@/components/DataTable.vue';
 import Navigation from '@/components/Navigation.vue';
 import Search from '@/components/Search.vue';
 import { useLogout } from '@/hooks/logout.hook';
-import { MainService } from '@/services/main.service';
+import type { NetworkModel } from '@/models/network.model';
+import { NetworkService } from '@/services/network.service';
+import { showConfirm } from '@/utils';
 import { onMounted, ref } from 'vue';
 
 const logout = useLogout()
-const networks = ref<any[]>()
+const networks = ref<NetworkModel[]>()
 const search = ref<string>('')
 
 function loadNetworks() {
-    MainService.useAxios(`/network?search=${search.value}`)
+    NetworkService.getNetworks(search.value)
         .then(rsp => networks.value = rsp.data)
         .catch(e => logout())
 }
 
 function deleteNetwork(id: number) {
-    if (!confirm('Are you sure you want to delete network')) {
-        return
-    }
-
-    MainService.useAxios(`/network/${id}`, 'delete')
-        .then(rsp => {
-            networks.value = networks.value!.filter(n => n.networkId !== id)
-        })
-        .catch(e => logout())
+    showConfirm('Are you sure you want to delete network?', () => {
+        NetworkService.deleteNetwork(id)
+            .then(rsp => {
+                networks.value = networks.value!.filter(n => n.networkId !== id)
+            })
+            .catch(e => logout())
+    })
 }
 
 onMounted(() => loadNetworks())
@@ -40,7 +41,7 @@ onMounted(() => loadNetworks())
             </RouterLink>
         </div>
     </Search>
-    <table class="table table-striped table-hover" v-if="networks">
+    <DataTable :data="networks">
         <thead>
             <tr>
                 <th scope="col">#</th>
@@ -64,9 +65,6 @@ onMounted(() => loadNetworks())
                         <RouterLink :to="`/network/${network.networkId}/address`" class="btn btn-sm btn-primary">
                             <i class="fa-solid fa-desktop"></i>
                         </RouterLink>
-                        <RouterLink :to="`/network/${network.networkId}/nodes`" class="btn btn-sm btn-secondary">
-                            <i class="fa-solid fa-hexagon-nodes"></i>
-                        </RouterLink>
                         <RouterLink :to="`/network/${network.networkId}`" class="btn btn-sm btn-success">
                             <i class="fa-solid fa-pen-to-square"></i>
                         </RouterLink>
@@ -77,5 +75,5 @@ onMounted(() => loadNetworks())
                 </td>
             </tr>
         </tbody>
-    </table>
+    </DataTable>
 </template>

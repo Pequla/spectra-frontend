@@ -1,41 +1,39 @@
 <script lang="ts" setup>
+import DataTable from '@/components/DataTable.vue';
 import Navigation from '@/components/Navigation.vue';
 import Search from '@/components/Search.vue';
 import { useLogout } from '@/hooks/logout.hook';
-import { MainService } from '@/services/main.service';
+import type { AddressModel } from '@/models/address.model';
+import { AddressService } from '@/services/address.service';
+import { NetworkService } from '@/services/network.service';
+import { generateLastReport } from '@/utils';
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
 const route = useRoute()
 const logout = useLogout()
 const network = ref()
-const addresses = ref()
+const addresses = ref<AddressModel[]>()
 const search = ref<string>('')
+const id = Number(route.params.id)
 
-MainService.useAxios(`/network/${route.params.id}`)
+NetworkService.getNetworkById(id)
     .then(rsp => network.value = rsp.data)
     .catch(e => logout())
 
 function loadAddresses() {
-    MainService.useAxios(`/network/${route.params.id}/address?search=${search.value}`)
+    AddressService.getAddresses(id, search.value)
         .then(rsp => addresses.value = rsp.data)
         .catch(e => logout())
 }
 
-function isOnline(address: any): boolean {
+function isOnline(address: AddressModel): boolean {
     const lastReportDate = new Date(address.lastReportAt);
     const now = new Date();
 
     const diffInMs = now.getTime() - lastReportDate.getTime();
     const diffInMinutes = diffInMs / (1000 * 60);
-    return address.online && diffInMinutes <= 15;
-}
-
-function generateLastReport(iso: string | null) {
-    if (iso == null)
-        return 'Never reported'
-
-    return new Date(iso).toLocaleString('sr-RS')
+    return address.online && diffInMinutes <= (import.meta.env.VITE_DEVICE_TIMEOUT_IN_MIN || 15);
 }
 
 onMounted(() => loadAddresses())
@@ -44,9 +42,21 @@ onMounted(() => loadAddresses())
 <template>
     <Navigation />
     <div v-if="network">
-        <h3>Network {{ network.range }} ({{ network.name }})</h3>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <RouterLink to="/network">
+                        Networks
+                    </RouterLink>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    {{ network.range }} ({{ network.name }})
+                </li>
+            </ol>
+        </nav>
+        <h3>Addresses</h3>
         <Search v-model="search" @change="loadAddresses" />
-        <table class="table table-striped table-hover">
+        <DataTable :data="addresses">
             <thead>
                 <tr>
                     <th scope="col">#</th>
@@ -66,7 +76,6 @@ onMounted(() => loadAddresses())
                         <div class="d-flex gap-1">
                             <i class="fa-solid fa-plug-circle-exclamation" v-if="address.wol"
                                 title="Device will be awoken with the magic packet"></i>
-
                             <i class="fa-solid fa-bell" v-if="address.notifications"
                                 title="Notifications are enabled"></i>
                         </div>
@@ -96,11 +105,6 @@ onMounted(() => loadAddresses())
                     </td>
                 </tr>
             </tbody>
-            <tfoot v-else>
-                <tr>
-                    Processing table data... Please wait!
-                </tr>
-            </tfoot>
-        </table>
+        </DataTable>
     </div>
 </template>

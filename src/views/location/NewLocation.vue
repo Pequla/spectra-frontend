@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import Navigation from '@/components/Navigation.vue';
 import { useLogout } from '@/hooks/logout.hook';
-import { MainService } from '@/services/main.service';
+import { LocationService } from '@/services/location.service';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -11,13 +11,8 @@ const location = ref({
 const logout = useLogout()
 const router = useRouter()
 
-const locations = ref()
-MainService.useAxios('/location')
-    .then(rsp => locations.value = rsp.data)
-    .catch(e => logout())
-
 async function createLocation() {
-    MainService.useAxios('/location', 'post', location.value)
+    LocationService.createLocation(location.value)
         .then(rsp => router.push('/location'))
         .catch(e => logout())
 }
