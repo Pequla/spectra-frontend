@@ -50,7 +50,7 @@ function sendCommand() {
 }
 
 
-const load = setInterval(() => retrieveCommands(), 3000)
+const load = setInterval(() => retrieveCommands(), 2000)
 
 onMounted(() => {
     loadData()
@@ -95,8 +95,9 @@ watch(
             </div>
 
             <div v-for="(log, index) in commands" :key="index" class="text-light">
-                [{{ new Date(log.createdAt).toLocaleTimeString('sr-RS') }}]
-                <span v-if="log.type == 'cmd'">&gt;&gt;</span>
+                <span v-if="log.type == 'cmd'">
+                    [{{ new Date(log.createdAt).toLocaleTimeString('sr-RS') }}] &gt;&gt;
+                </span>
                 {{ log.value }}
             </div>
         </div>
