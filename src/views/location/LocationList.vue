@@ -5,6 +5,7 @@ import Search from '@/components/Search.vue';
 import { useLogout } from '@/hooks/logout.hook';
 import type { LocationModel } from '@/models/location.model';
 import { LocationService } from '@/services/location.service';
+import { AuthService } from '@/services/auth.service'
 import { onMounted, ref } from 'vue';
 
 const logout = useLogout()
@@ -37,7 +38,7 @@ onMounted(() => loadLocations())
     <h3>Locations</h3>
     <Search v-model="search" @change="loadLocations">
         <div class="btn-group">
-            <RouterLink class="btn btn-primary" to="/location/new">
+            <RouterLink v-if="AuthService.isAdmin()" class="btn btn-primary" to="/location/new">
                 <i class="fa-solid fa-plus"></i> Add location
             </RouterLink>
         </div>
@@ -49,7 +50,7 @@ onMounted(() => loadLocations())
                 <th scope="col">Name</th>
                 <th scope="col">Created At</th>
                 <th scope="col">Updated At</th>
-                <th scope="col">Actions</th>
+                <th v-if="AuthService.isAdmin()" scope="col">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -59,7 +60,7 @@ onMounted(() => loadLocations())
                 <td>{{ new Date(location.createdAt).toLocaleString('sr-RS') }}</td>
                 <td>{{ location.updatedAt ? new Date(location.updatedAt).toLocaleString('sr-RS') : 'N/A' }}
                 </td>
-                <td>
+                <td v-if="AuthService.isAdmin()">
                     <div class="btn-group">
                         <RouterLink :to="`/location/${location.locationId}`" class="btn btn-sm btn-success">
                             <i class="fa-solid fa-pen-to-square"></i>

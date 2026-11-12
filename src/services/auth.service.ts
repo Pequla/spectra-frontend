@@ -26,6 +26,10 @@ export class AuthService {
         return this.getAuth().name
     }
 
+    static isAdmin(): boolean {
+        return this.hasAuth() && this.getAuth().isAdmin === true
+    }
+
     static hasAuth(): boolean {
         return localStorage.getItem('auth') != undefined
     }

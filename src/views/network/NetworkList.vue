@@ -5,6 +5,7 @@ import Search from '@/components/Search.vue';
 import { useLogout } from '@/hooks/logout.hook';
 import type { NetworkModel } from '@/models/network.model';
 import { NetworkService } from '@/services/network.service';
+import { AuthService } from '@/services/auth.service'
 import { showConfirm } from '@/utils';
 import { onMounted, ref } from 'vue';
 
@@ -36,7 +37,7 @@ onMounted(() => loadNetworks())
     <h3>Networks</h3>
     <Search v-model="search" @change="loadNetworks">
         <div class="btn-group">
-            <RouterLink class="btn btn-primary" to="/network/new">
+            <RouterLink v-if="AuthService.isAdmin()" class="btn btn-primary" to="/network/new">
                 <i class="fa-solid fa-plus"></i> Add network
             </RouterLink>
         </div>
@@ -65,10 +66,10 @@ onMounted(() => loadNetworks())
                         <RouterLink :to="`/network/${network.networkId}/address`" class="btn btn-sm btn-primary">
                             <i class="fa-solid fa-desktop"></i>
                         </RouterLink>
-                        <RouterLink :to="`/network/${network.networkId}`" class="btn btn-sm btn-success">
+                        <RouterLink v-if="AuthService.isAdmin()" :to="`/network/${network.networkId}`" class="btn btn-sm btn-success">
                             <i class="fa-solid fa-pen-to-square"></i>
                         </RouterLink>
-                        <button class="btn btn-sm btn-danger" v-on:click="deleteNetwork(network.networkId)">
+                        <button v-if="AuthService.isAdmin()" class="btn btn-sm btn-danger" v-on:click="deleteNetwork(network.networkId)">
                             <i class="fa-solid fa-trash-can"></i>
                         </button>
                     </div>

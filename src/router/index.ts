@@ -1,3 +1,4 @@
+import { AuthService } from '@/services/auth.service'
 import AddressList from '@/views/address/AddressList.vue'
 import EditAddress from '@/views/address/EditAddress.vue'
 import EditLocation from '@/views/location/EditLocation.vue'
@@ -66,3 +67,11 @@ const router = createRouter({
 })
 
 export default router
+
+router.beforeEach(to => {
+  const adminRoutes = ['/network/new', '/location/new']
+  const editRoutes = ['/network/:id', '/location/:id']
+
+  if ((adminRoutes.includes(to.path) || editRoutes.includes(to.matched[0]?.path)) && !AuthService.isAdmin())
+    return '/network'
+})

@@ -34,11 +34,6 @@ onMounted(() => loadNodes())
     <Navigation />
     <h3>Nodes</h3>
     <Search v-model="search" @change="loadNodes">
-        <div class="btn-group">
-            <RouterLink class="btn btn-primary" to="/node/new">
-                <i class="fa-solid fa-plus"></i> Add node
-            </RouterLink>
-        </div>
     </Search>
     <DataTable :data="nodes">
         <thead>
